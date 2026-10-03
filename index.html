@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-lang="zh">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -177,6 +177,10 @@ html.dark .switch .sun{display:none} html.dark .switch .moon{display:block}
 #tip-box button{border:1px solid var(--divider);background:var(--bg-soft);color:var(--t2);border-radius:6px;padding:3px 14px;font-size:13px;cursor:pointer;font-family:inherit}
 #tip-box button:hover{color:var(--t1);background:var(--bg-mute)}
 .hint p{margin:4px 0}
+/* Nút đổi ngôn ngữ: để người đọc tự chuyển, không phải dựa vào nút dịch của trình duyệt */
+.lang-switch{margin:14px 0 0;font-size:14px}
+.lang-switch a{display:inline-block;padding:5px 14px;border:1px solid var(--divider);border-radius:20px;color:var(--t2);text-decoration:none;background:var(--bg-elv);transition:all .2s}
+.lang-switch a:hover{color:var(--brand-1);border-color:var(--brand-1)}
 .backdrop{display:none}
 
 /* content */
@@ -443,6 +447,7 @@ abbr.term:hover{border-bottom-color:var(--brand-1);color:var(--brand-1)}
       <div class="doc-links">长文：<a href="https://github.com/eternity4719/HowToLiveBetter/blob/main/docs/%E9%81%87%E5%88%B0%E9%99%8C%E7%94%9F%E4%BA%BA%E5%87%BA%E4%BA%8B%E8%AF%A5%E4%B8%8D%E8%AF%A5%E5%81%9C.md">遇到陌生人出事该不该停</a> · <a href="https://github.com/eternity4719/HowToLiveBetter/blob/main/docs/%E5%AE%B6%E5%BA%AD%E5%BA%94%E6%80%A5%E8%A3%85%E5%A4%87%E6%B8%85%E5%8D%95.md">家庭应急装备清单</a> · <a href="https://github.com/eternity4719/HowToLiveBetter/blob/main/docs/%E7%BB%93%E5%A9%9A%E5%88%92%E4%B8%8D%E5%88%92%E7%AE%97.md">结婚划不划算</a> · <a href="https://github.com/eternity4719/HowToLiveBetter/blob/main/docs/%E5%81%9A%E5%B9%B3%E5%8F%B0%E8%A6%81%E5%8A%9E%E5%93%AA%E4%BA%9B%E8%AF%81.md">做平台要办哪些证</a> · <a href="https://github.com/eternity4719/HowToLiveBetter/blob/main/docs/%E7%94%9F%E7%89%A9%E9%92%9F%E5%92%8C%E5%A4%9C%E7%8F%AD.md">生物钟和夜班</a> · <a href="https://github.com/eternity4719/HowToLiveBetter/blob/main/docs/%E8%A2%AB%E8%A3%81%E4%BA%86%E4%B9%8B%E5%90%8E%E5%85%88%E5%81%9A%E4%BB%80%E4%B9%88.md">被裁了之后先做什么</a> · <a href="https://github.com/eternity4719/HowToLiveBetter/blob/main/docs/%E5%AD%A9%E5%AD%90%E5%87%BA%E7%94%9F%E5%89%8D%E5%90%8E%E8%A6%81%E5%8A%9E%E7%9A%84%E4%BA%8B.md">孩子出生前后要办的事</a> · <a href="https://github.com/eternity4719/HowToLiveBetter/blob/main/docs/%E5%88%9A%E7%A1%AE%E8%AF%8A%E6%85%A2%E6%80%A7%E7%97%85%E4%B9%8B%E5%90%8E.md">刚确诊慢性病之后</a> ·<a href="https://github.com/eternity4719/HowToLiveBetter/tree/main/docs/%E6%A0%B8%E5%AE%9E%E8%AE%B0%E5%BD%95">来源核实记录</a></div>
       <div class="doc-links">AI 助手：<a href="https://github.com/eternity4719/HowToLiveBetter/blob/main/skills/life-decision-guide/README.md">让 Claude Code 或 Codex 照这本书回答你的问题（skill 装法）</a></div>
       <details class="gloss" id="gloss"><summary>看不懂的缩写和名词</summary><p>正文里带虚线的词，点一下或把鼠标放上去就有解释。全表如下。</p><dl></dl></details>
+      <p class="lang-switch"><a href="?lang=vi" id="lang-other">Tiếng Việt</a></p>
     </div>
     <div id="list">
       <div class="status" id="status"><span id="status-t">正在读取正文 …</span><div class="bar"><i id="status-b"></i></div></div>
@@ -567,6 +572,20 @@ const T_LABEL = VI ? {
 // 把界面文案一次性刷到 DOM 上：静态标记不维护两套，只在这里覆盖
 function applyI18n(){
   if (!VI) return;
+  // Khai báo ngôn ngữ đúng theo trang đang xem. `lang` là thứ Chrome và trình đọc màn hình
+  // dùng để quyết định có đề nghị dịch hay không: để nguyên zh-CN trên trang tiếng Việt thì
+  // Chrome mở nút Google Translate ở mọi lần tải, người đọc bấm vào là cả trang bị dịch
+  // bằng bản dịch máy — thứ không phải bản dịch của sách.
+  document.documentElement.lang = 'vi';
+  document.documentElement.dataset.lang = 'vi';
+  // canonical cũng phải trỏ đúng bản, nếu không công cụ tìm kiếm sẽ gộp hai ngôn ngữ làm một
+  const base = location.origin + location.pathname;
+  for (const sel of ['link[rel="canonical"]', 'meta[property="og:url"]']) {
+    const el = document.querySelector(sel);
+    if (!el) continue;
+    if (el.tagName === 'LINK') el.href = base + '?lang=vi';
+    else el.content = base + '?lang=vi';
+  }
   const S = I18N.s;
   const set = (sel, fn) => { document.querySelectorAll(sel).forEach(fn); };
   document.title = I18N.docTitle;
@@ -622,6 +641,7 @@ function applyI18n(){
   set('.xp-go', el => el.textContent = S.jump);
   set('.gloss summary', el => el.textContent = 'Chữ viết tắt và thuật ngữ khó hiểu');
   set('.gloss p', el => el.textContent = 'Trong nội dung, chữ có gạch chân: bấm hoặc rê chuột lên là hiện giải thích. Toàn bộ bảng ở dưới.');
+  set('.lang-switch a', el => { el.textContent = '中文'; el.href = location.pathname; el.title = 'Xem bản tiếng Trung'; });
   set('.hint p:nth-of-type(1)', el => el.textContent = 'Mỗi lần chỉ xem một chương; chi phí và mức bằng chứng thì chọn nhiều được. Chọn nhiều trong cùng nhóm là「hoặc」, giữa các nhóm khác nhau là「và」.');
   set('.hint p:nth-of-type(2)', el => el.textContent = 'Trong mỗi chương, các mục xếp theo đáng giá từ cao xuống thấp; tìm kiếm không đổi thứ tự.');
   set('.hint p:nth-of-type(3)', el => el.innerHTML = `Nội dung và nhãn lấy từ các file trong thư mục <a href="${I18N.bookDir}">${I18N.bookDir}</a> của repo. Sửa nội dung là sửa ở đây.`);
