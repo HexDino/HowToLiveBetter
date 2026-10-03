@@ -1,4 +1,5 @@
-.idea/
-.junie/
-node_modules/
-dist/
+﻿# Ghi chú nội bộ khi dịch tiếng Việt — không lên repo.
+# Dùng cho: node tools/vi-merge.mjs, check-vi-*.mjs, check-vi-site.mjs
+.vi-active-chapters.json
+.vi-chunks/
+.vi-prompts/

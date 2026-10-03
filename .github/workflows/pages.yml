@@ -1,0 +1,49 @@
+# Đưa trang lên GitHub Pages.
+#
+# Trang là HTML tĩnh: index.html đọc README.vi.md và book/vi/ lúc chạy, nên phát hành cả
+# thư mục gốc là xong, không cần bước build nào. Cùng repo này còn có book.yml build
+# EPUB/PDF — hai việc độc lập, cái này không đụng tới cái kia.
+name: Trang
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - index.html
+      - README.md
+      - README.vi.md
+      - book/**
+      - docs/vi/**
+      - ads/**
+      - .github/workflows/pages.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Mỗi lần đẩy mới hủy lượt đang chờ: không cần xếp hàng dài, chỉ cần trang mới nhất.
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          # .nojekyll: trong repo có file tên bắt đầu bằng gạch dưới ở .github/, không có
+          # nó Jekyll sẽ bỏ qua và trang trắng.
+          path: '.'
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
